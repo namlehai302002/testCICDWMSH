@@ -2,16 +2,15 @@ name: WMS Tests CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   DOTNET_VERSION: "8.0.x"
   CONFIG: "Release"
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
 
@@ -24,21 +23,11 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    # Restore toàn solution
     - name: Restore solution
-      run: dotnet restore WMS.sln
+      run: dotnet restore WMS/WMS.sln
 
-    # Build toàn solution
     - name: Build solution
-      run: dotnet build WMS.sln --configuration ${{ env.CONFIG }} --no-restore
+      run: dotnet build WMS/WMS.sln --configuration ${{ env.CONFIG }} --no-restore
 
-    # =========================
-    # CHẠY TOÀN BỘ TEST TRONG WMS.Tests
-    # (tự động detect tất cả Controllers/*.cs)
-    # =========================
-    - name: Run ALL tests in WMS.Tests
-      run: dotnet test WMS.Tests/WMS.Tests.csproj --configuration ${{ env.CONFIG }} --no-build --verbosity normal
-
-    # Optional: xuất report
-    - name: Test Report
-      run: dotnet test WMS.Tests/WMS.Tests.csproj --logger "trx;LogFileName=test-results.trx"
+    - name: Run tests
+      run: dotnet test WMS/WMS.Tests/WMS.Tests.csproj --configuration ${{ env.CONFIG }} --no-build --logger "trx;LogFileName=test-results.trx"

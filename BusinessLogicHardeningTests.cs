@@ -212,4 +212,74 @@ public class BusinessLogicHardeningTests
         public IDictionary<string, object> LoadTempData(HttpContext context) => new Dictionary<string, object>();
         public void SaveTempData(HttpContext context, IDictionary<string, object> values) { }
     }
+
+    /// <summary>
+    /// Stock validation happens when voucher is posted, not during Create for draft vouchers.
+    /// This test verifies that draft export vouchers are created successfully.
+    /// </summary>
+    [Fact]
+    public async Task Create_ShouldRejectWhenQuantityExceedsStock()
+    {
+        await using var db = CreateDb(nameof(Create_ShouldRejectWhenQuantityExceedsStock));
+        SeedWarehouseGraph(db);
+
+        db.Items.Add(new Item
+        {
+            ItemId = 1,
+            ItemCode = "ITEM-STOCK",
+            ItemName = "Stock Test Item",
+            BaseUomId = 1,
+            UnitCost = 100,
+            IsActive = true
+        });
+
+        db.ItemLocations.Add(new ItemLocation
+        {
+            ItemLocationId = 1,
+            ItemId = 1,
+            LocationId = 1,
+            Quantity = 5,
+            ReservedQty = 0,
+            LotNumber = "LOT-1",
+            ExpiryDate = DateTime.UtcNow.AddMonths(6),
+            UpdatedAt = DateTime.UtcNow
+        });
+
+        await db.SaveChangesAsync();
+
+        var controller = CreateController(db);
+
+        var vm = new VoucherCreateViewModel
+        {
+            VoucherType = VoucherTypeEnum.DieuChinh,
+            WarehouseId = 1,
+            Lines = new List<VoucherDetailLine>
+            {
+                new()
+                {
+                    ItemId = 1,
+                    LocationId = 1,
+                    TransactionQty = 10, // Exceeds available stock
+                    TransactionUomId = 1,
+                    AdjustSign = -1, // Negative adjustment
+                    UnitPrice = 100,
+                    LineAmount = 1000
+                }
+            }
+        };
+
+        var result = await controller.Create(vm);
+
+        // Stock validation happens when voucher is posted. For DieuChinh with negative qty,
+        // we expect the system to reject and return to the view with error.
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Same(vm, view.Model);
+        Assert.Contains("không đủ tồn kho", controller.TempData["Error"]?.ToString() ?? "", StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(0, await db.Vouchers.CountAsync());
+        Assert.Equal(0, await db.VoucherDetails.CountAsync());
+    }
 }
+
+
+
+

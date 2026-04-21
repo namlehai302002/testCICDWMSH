@@ -364,3 +364,4 @@ C:\Users\Hoang Nam\Downloads\WMSH\WMS\WMS.Tests\obj\Debug\net8.0\refint\WMS.Test
 C:\Users\Hoang Nam\Downloads\WMSH\WMS\WMS.Tests\obj\Debug\net8.0\WMS.Tests.pdb
 C:\Users\Hoang Nam\Downloads\WMSH\WMS\WMS.Tests\obj\Debug\net8.0\WMS.Tests.genruntimeconfig.cache
 C:\Users\Hoang Nam\Downloads\WMSH\WMS\WMS.Tests\obj\Debug\net8.0\ref\WMS.Tests.dll
+C:\Users\Hoang Nam\Downloads\WMSH\WMS\WMS.Tests\obj\Debug\net8.0\WMS.Tests.sourcelink.json

@@ -24,10 +24,10 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Restore solution
-      run: dotnet restore WMS/WMS.sln
+      run: dotnet restore
 
     - name: Build solution
-      run: dotnet build WMS/WMS.sln --configuration ${{ env.CONFIG }} --no-restore
-
+      run: dotnet build --configuration Release --no-restore
+      
     - name: Run tests
-      run: dotnet test WMS/WMS.Tests/WMS.Tests.csproj --configuration ${{ env.CONFIG }} --no-build --logger "trx;LogFileName=test-results.trx"
+     run: dotnet test WMS.Tests/WMS.Tests.csproj --configuration Release --no-build
